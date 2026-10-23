@@ -5,8 +5,8 @@
 
 typedef struct {
     int id;
-    double poids;
-    double valeur;
+    int poids;
+    int valeur;
     int priorite;
     char destination[DESTINATION_MAX];
 } Colis;

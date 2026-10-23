@@ -37,7 +37,7 @@ void collection_afficher(const CollectionColis *collection) {
     }
     else{
         for(int i = 0; i < collection->taille; i++){
-        printf("Colis numéro %d : %.2f kilos, valeur de %.2f, priorité de %d \n", 
+        printf("Colis numéro %d : %d kilos, valeur de %d, priorité de %d\n",
             collection->elements[i].id, 
             collection->elements[i].poids,
             collection->elements[i].valeur, 
