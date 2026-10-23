@@ -3,6 +3,10 @@
 #include <stdio.h>
 
 void collection_initialiser(CollectionColis *collection) {
+    if (collection == NULL) {
+        return;
+    }
+
     collection->elements = NULL;
     collection->taille = 0;
     collection->capacite = 0;
@@ -23,12 +27,30 @@ int collection_ajouter(CollectionColis *collection, Colis colis) {
         return 0;
     }
 
-    if(collection->taille < collection->capacite){
-        collection->elements[collection->taille] = colis;
-        collection->taille ++;
-        return 1;
+    if (collection_trouver_par_id(collection, colis.id) != NULL) {
+        return 0;
     }
-    return 0;
+
+    if (collection->taille == collection->capacite) {
+        int nouvelle_capacite = collection->capacite == 0
+            ? 16
+            : collection->capacite * 2;
+        Colis *nouveaux_elements = realloc(
+            collection->elements,
+            (size_t)nouvelle_capacite * sizeof(*nouveaux_elements)
+        );
+
+        if (nouveaux_elements == NULL) {
+            return 0;
+        }
+
+        collection->elements = nouveaux_elements;
+        collection->capacite = nouvelle_capacite;
+    }
+
+    collection->elements[collection->taille] = colis;
+    collection->taille++;
+    return 1;
 }
 
 void collection_afficher(const CollectionColis *collection) {

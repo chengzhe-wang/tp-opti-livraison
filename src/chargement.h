@@ -13,6 +13,7 @@ typedef struct {
     int nombre_colis;
     int poids_total;
     int valeur_totale;
+    int score_total;
 } Chargement;
 
 void chargement_initialiser(Chargement *chargement);

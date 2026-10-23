@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define BONUS_PRIORITE 10
+
 void chargement_initialiser(Chargement *chargement) {
     if (chargement == NULL) {
         return;
@@ -11,6 +13,7 @@ void chargement_initialiser(Chargement *chargement) {
     chargement->nombre_colis = 0;
     chargement->poids_total = 0;
     chargement->valeur_totale = 0;
+    chargement->score_total = 0;
 }
 
 void chargement_liberer(Chargement *chargement) {
@@ -20,6 +23,7 @@ void chargement_liberer(Chargement *chargement) {
         chargement->nombre_colis = 0;
         chargement->poids_total = 0;
         chargement->valeur_totale = 0;
+        chargement->score_total = 0;
     }
 }
 
@@ -42,7 +46,7 @@ int camion_preparer_chargement_optimal(const CollectionColis *collection, const 
         }
     }
 
-    chargement_initialiser(resultat);
+    chargement_liberer(resultat);
 
     int lignes = collection->taille + 1;
     int colonnes = camion->capacite_max + 1;
@@ -58,7 +62,9 @@ int camion_preparer_chargement_optimal(const CollectionColis *collection, const 
             }
             else{
                 int sans_colis = table[(i - 1) * colonnes + j];
-                int avec_colis = colis->valeur + table[(i - 1) * colonnes + (j - colis->poids)];
+                int score_colis = colis->valeur + BONUS_PRIORITE * colis->priorite;
+                int avec_colis = score_colis
+                    + table[(i - 1) * colonnes + (j - colis->poids)];
                 if (avec_colis > sans_colis) {
                     table[i * colonnes + j] = avec_colis;
                 } else {
@@ -68,7 +74,7 @@ int camion_preparer_chargement_optimal(const CollectionColis *collection, const 
             
         }
     }
-    resultat->valeur_totale = table[(lignes - 1) * colonnes + (colonnes - 1)];
+    resultat->score_total = table[(lignes - 1) * colonnes + (colonnes - 1)];
 
     if (collection->taille > 0) {
         resultat->colis_charges = malloc(
@@ -89,6 +95,7 @@ int camion_preparer_chargement_optimal(const CollectionColis *collection, const 
             const Colis *colis = &collection->elements[i - 1];
             resultat->colis_charges[resultat->nombre_colis++] = *colis;
             resultat->poids_total += colis->poids;
+            resultat->valeur_totale += colis->valeur;
             capacite_restante -= colis->poids;
         }
     }
@@ -113,11 +120,14 @@ void chargement_afficher(const Chargement *chargement) {
 
     printf("Poids total : %d kg\n", chargement->poids_total);
     printf("Valeur totale : %d\n", chargement->valeur_totale);
+    printf("Score avec priorité : %d\n", chargement->score_total);
     printf("Colis sélectionnés :\n");
 
     for (int i = 0; i < chargement->nombre_colis; ++i) {
         const Colis *colis = &chargement->colis_charges[i];
-        printf("- Colis %d : %d kg, valeur %d\n",
-               colis->id, colis->poids, colis->valeur);
+        int score_colis = colis->valeur + BONUS_PRIORITE * colis->priorite;
+        printf("- Colis %d : %d kg, valeur %d, priorité %d, score %d\n",
+               colis->id, colis->poids, colis->valeur,
+               colis->priorite, score_colis);
     }
 }
